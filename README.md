@@ -8,7 +8,7 @@ Run with environment variable `GODEBUG=cgocheck=0`.
 
 The API is well-documented in its [![GoDoc](https://godoc.org/github.com/delthas/go-xvid?status.svg)](https://godoc.org/github.com/delthas/go-xvid)
 
-A [decoder](https://github.com/delthas/go-xvid/tree/master/examples/decoder/main.go) and [encoder](https://github.com/delthas/go-xvid/tree/master/examples/encoder/main.go) example are available in `examples/` (must be run from the repo main directory, with `GODEBUG=cgocheck=0`).
+A [decoder](https://github.com/delthas/go-xvid/tree/master/examples/decoder/main.go) and [encoder](https://github.com/delthas/go-xvid/tree/master/examples/encoder/main.go) as well as [convert](https://github.com/delthas/go-xvid/tree/master/examples/convert/main.go) example are available in `examples/` (must be run from the repo main directory, with `GODEBUG=cgocheck=0`).
 
 You can also check the library source code and the [Xvid source code](https://labs.xvid.com/source/) (please open an issue if the library lacks documentation for your use case).
 
@@ -20,10 +20,6 @@ The API could be slightly changed in backwards-incompatible ways for now.
 
 - [X] Nearly all of xvidcore
 - [ ] Frame slice rendering
-
-#### Known issues
-
-- The BGRA, ABGR, RGBA, ARGB colorspaces have their alpha channel set to 0 (fully transparent) instead of 255 (fully opaque) when used as output of conversion/encoding
 
 ## License
 

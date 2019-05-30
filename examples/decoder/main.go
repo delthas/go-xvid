@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	fmt.Println(xvid.GetGlobalInfo())
 	if err := xvid.Init(); err != nil {
 		panic(err)
 	}
@@ -53,13 +52,6 @@ func main() {
 		output := image.NewRGBA(image.Rectangle{Max: image.Point{X: decoder.Width, Y: decoder.Height}})
 		output.Pix = img.Planes[0]
 		output.Stride = img.Strides[0]
-
-		// the alpha channel is set to 0 instead of 255 due to an xvid implementation bug, fix this here
-		for i := 0; i < output.Stride*decoder.Height; i += output.Stride {
-			for j := 0; j < decoder.Width; j++ {
-				output.Pix[i+j*4+3] = 255
-			}
-		}
 
 		f, err := os.Create(fmt.Sprintf("examples/data/output-%d.png", i))
 		if err != nil {

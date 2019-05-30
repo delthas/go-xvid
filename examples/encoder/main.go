@@ -25,11 +25,7 @@ func (p MyPlugin) After(data *xvid.PluginData) {
 }
 
 func main() {
-	info, err := xvid.GetGlobalInfo()
-	if err != nil {
-		panic(err)
-	}
-	if err := xvid.InitWithFlags(info.CPUFlags, xvid.DebugError); err != nil {
+	if err := xvid.Init(); err != nil {
 		panic(err)
 	}
 
@@ -65,6 +61,7 @@ func main() {
 			panic(err)
 		}
 		inputJpeg, err := jpeg.Decode(f)
+		f.Close()
 		if err != nil {
 			panic(err)
 		}
@@ -77,7 +74,7 @@ func main() {
 		img := xvid.Image{
 			Colorspace: xvid.ColorSpacePlanar,
 			Planes:     [][]byte{input.Y, input.Cb, input.Cr},
-			Strides:    []int{input.YStride, input.CStride, input.CStride},
+			Strides:    []int{input.YStride, input.CStride},
 		}
 
 		n, _, err := encoder.Encode(xvid.EncoderFrame{

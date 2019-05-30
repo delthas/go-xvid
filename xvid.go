@@ -118,6 +118,8 @@ type ColorSpace struct {
 	value int
 	// number of image planes for colorspace
 	Planes int
+	// number of strides for colorspace
+	Strides int
 	// bits per pixel average (over all planes)
 	BitsPerPixel int
 	// bits per pixel for each plane
@@ -125,38 +127,102 @@ type ColorSpace struct {
 }
 
 var (
-	// YUV 4:2:0 planar, like ColorSpaceI420 but with 3 buffers, planes[0] is Y, planes[1] is U, planes[2] is V
-	ColorSpacePlanar ColorSpace = ColorSpace{C.XVID_CSP_PLANAR, 3, 12, []int{8, 2, 2}}
-	// YUV 4:2:0 planar, packed as YUV
-	ColorSpaceI420 ColorSpace = ColorSpace{C.XVID_CSP_I420, 1, 12, []int{12}}
-	// YUV 4:2:0 planar, packed as YVU
-	ColorSpaceYV12 ColorSpace = ColorSpace{C.XVID_CSP_YV12, 1, 12, []int{12}}
-	// YUV 4:2:2 packed
-	ColorSpaceYUY2 ColorSpace = ColorSpace{C.XVID_CSP_YUY2, 1, 16, []int{16}}
-	// YUV 4:2:2 packed
-	ColorSpaceUYVY ColorSpace = ColorSpace{C.XVID_CSP_UYVY, 1, 16, []int{16}}
-	// YUV 4:2:2 packed
-	ColorSpaceYVYU ColorSpace = ColorSpace{C.XVID_CSP_YVYU, 1, 16, []int{16}}
+	// YUV 4:2:0 planar, like ColorSpaceI420 but with 3 buffers,
+	// planes[0] is Y, planes[1] is U, planes[2] is V;
+	// stride[0] is Y stride, stride[1] is U/V stride
+	ColorSpacePlanar ColorSpace = ColorSpace{value: C.XVID_CSP_PLANAR,
+		Planes:             3,
+		Strides:            2,
+		BitsPerPixel:       12,
+		BitsPerPixelPlanes: []int{8, 2, 2}}
+	// YUV 4:2:0 planar, packed as YUV, FourCC I420
+	// stride[0] is Y stride, U and V stride are stride[0]/2
+	ColorSpaceI420 ColorSpace = ColorSpace{value: C.XVID_CSP_I420,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       12,
+		BitsPerPixelPlanes: []int{12}}
+	// YUV 4:2:0 planar, packed as YVU, FourCC YV12
+	// stride[0] is Y stride, U and V stride are stride[0]/2
+	ColorSpaceYV12 ColorSpace = ColorSpace{value: C.XVID_CSP_YV12,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       12,
+		BitsPerPixelPlanes: []int{12}}
+	// YUV 4:2:2 packed, FourCC YUY2
+	ColorSpaceYUY2 ColorSpace = ColorSpace{value: C.XVID_CSP_YUY2,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       16,
+		BitsPerPixelPlanes: []int{16}}
+	// YUV 4:2:2 packed, FourCC UYVY
+	ColorSpaceUYVY ColorSpace = ColorSpace{value: C.XVID_CSP_UYVY,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       16,
+		BitsPerPixelPlanes: []int{16}}
+	// YUV 4:2:2 packed, FourCC YVYU
+	ColorSpaceYVYU ColorSpace = ColorSpace{value: C.XVID_CSP_YVYU,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       16,
+		BitsPerPixelPlanes: []int{16}}
 	// 24-bit RGB packed
-	ColorSpaceRGB ColorSpace = ColorSpace{C.XVID_CSP_RGB, 1, 24, []int{24}}
-	// 32-bit BGRA packed; because of an Xvid bug, the alpha channel will be cleared out to 0 (fully transparent) instead of 255 (fully opaque)
-	ColorSpaceBGRA ColorSpace = ColorSpace{C.XVID_CSP_BGRA, 1, 32, []int{32}}
-	// 32-bit ABGR packed; because of an Xvid bug, the alpha channel will be cleared out to 0 (fully transparent) instead of 255 (fully opaque)
-	ColorSpaceABGR ColorSpace = ColorSpace{C.XVID_CSP_ABGR, 1, 32, []int{32}}
-	// 32-bit RGBA packed; because of an Xvid bug, the alpha channel will be cleared out to 0 (fully transparent) instead of 255 (fully opaque)
-	ColorSpaceRGBA ColorSpace = ColorSpace{C.XVID_CSP_RGBA, 1, 32, []int{32}}
-	// 32-bit ARGB packed; because of an Xvid bug, the alpha channel will be cleared out to 0 (fully transparent) instead of 255 (fully opaque)
-	ColorSpaceARGB ColorSpace = ColorSpace{C.XVID_CSP_ARGB, 1, 32, []int{32}}
+	ColorSpaceRGB ColorSpace = ColorSpace{value: C.XVID_CSP_RGB,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       24,
+		BitsPerPixelPlanes: []int{24}}
+	// 32-bit BGRA packed
+	ColorSpaceBGRA ColorSpace = ColorSpace{value: C.XVID_CSP_BGRA,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       32,
+		BitsPerPixelPlanes: []int{32}}
+	// 32-bit ABGR packed
+	ColorSpaceABGR ColorSpace = ColorSpace{value: C.XVID_CSP_ABGR,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       32,
+		BitsPerPixelPlanes: []int{32}}
+	// 32-bit RGBA packed
+	ColorSpaceRGBA ColorSpace = ColorSpace{value: C.XVID_CSP_RGBA,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       32,
+		BitsPerPixelPlanes: []int{32}}
+	// 32-bit ARGB packed
+	ColorSpaceARGB ColorSpace = ColorSpace{value: C.XVID_CSP_ARGB,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       32,
+		BitsPerPixelPlanes: []int{32}}
 	// 24-bit BGR packed
-	ColorSpaceBGR ColorSpace = ColorSpace{C.XVID_CSP_BGR, 1, 24, []int{24}}
+	ColorSpaceBGR ColorSpace = ColorSpace{value: C.XVID_CSP_BGR,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       24,
+		BitsPerPixelPlanes: []int{24}}
 	// 16-bit RGB555 packed
-	ColorSpaceRGB555 ColorSpace = ColorSpace{C.XVID_CSP_RGB555, 1, 16, []int{16}}
+	ColorSpaceRGB555 ColorSpace = ColorSpace{value: C.XVID_CSP_RGB555,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       16,
+		BitsPerPixelPlanes: []int{16}}
 	// 16-bit RGB565 packed
-	ColorSpaceRGB565 ColorSpace = ColorSpace{C.XVID_CSP_RGB565, 1, 16, []int{16}}
+	ColorSpaceRGB565 ColorSpace = ColorSpace{value: C.XVID_CSP_RGB565,
+		Planes:             1,
+		Strides:            1,
+		BitsPerPixel:       16,
+		BitsPerPixelPlanes: []int{16}}
 	// only for decoding: YUV 4:2:0 planar, but uses internal decoder buffers and strides rather than copying to a buffer; invalid after any call to a Decoder method
-	ColorSpaceInternal ColorSpace = ColorSpace{C.XVID_CSP_INTERNAL, 3, 12, []int{8, 2, 2}}
+	ColorSpaceInternal ColorSpace = ColorSpace{value: C.XVID_CSP_INTERNAL,
+		Planes:             3,
+		Strides:            2,
+		BitsPerPixel:       12,
+		BitsPerPixelPlanes: []int{8, 2, 2}}
 	// only for decoding: don't output anything
-	ColorSpaceNoOutput ColorSpace = ColorSpace{C.XVID_CSP_NULL, 0, 0, []int{}}
+	ColorSpaceNoOutput ColorSpace = ColorSpace{value: C.XVID_CSP_NULL, BitsPerPixelPlanes: []int{}}
 	// TODO frame slice rendering support
 	// decoder only: 4:2:0 planar, per slice rendering
 	// ColorSpaceSLICE    = ColorSpace{C.XVID_CSP_SLICE, 3}
@@ -471,17 +537,34 @@ type Image struct {
 	Strides []int
 }
 
+func (i *Image) fixAlpha(width int, height int) {
+	// the alpha channel is set to 0 instead of 255 due to an xvid implementation bug, fix this here
+	if i.Colorspace.value == ColorSpaceRGBA.value || i.Colorspace.value == ColorSpaceBGRA.value {
+		for j := 0; j < i.Strides[0]*height; j += i.Strides[0] {
+			for k := 0; k < width; k++ {
+				i.Planes[0][j+k*4+3] = 255
+			}
+		}
+		return
+	}
+	if i.Colorspace.value == ColorSpaceABGR.value || i.Colorspace.value == ColorSpaceARGB.value {
+		for j := 0; j < i.Strides[0]*height; j += i.Strides[0] {
+			for k := 0; k < width; k++ {
+				i.Planes[0][j+k*4] = 255
+			}
+		}
+		return
+	}
+}
+
 func (i *Image) nativeInput(width int, height int) (*C.xvid_image_t, error) {
 	if len(i.Planes) != i.Colorspace.Planes {
 		return nil, fmt.Errorf("xvid: unexpected number of planes for image, expected %d, got %d", i.Colorspace.Planes, len(i.Planes))
 	}
 	if i.Strides == nil {
-		i.Strides = make([]int, i.Colorspace.Planes)
-	} else if len(i.Strides) != i.Colorspace.Planes {
-		return nil, fmt.Errorf("xvid: unexpected number of strides for image, expected %d, got %d", i.Colorspace.Planes, len(i.Planes))
-	}
-	if i.Colorspace.value == ColorSpaceInternal.value {
-		return nil, fmt.Errorf("xvid: unexpected colorspace ColorSpaceInternal, use only for ouput")
+		i.Strides = make([]int, i.Colorspace.Strides)
+	} else if len(i.Strides) != i.Colorspace.Strides {
+		return nil, fmt.Errorf("xvid: unexpected number of strides for image, expected %d, got %d", i.Colorspace.Strides, len(i.Strides))
 	}
 	var cPlanes [4]unsafe.Pointer
 	var cStrides [4]C.int
@@ -491,13 +574,15 @@ func (i *Image) nativeInput(width int, height int) (*C.xvid_image_t, error) {
 			return nil, fmt.Errorf("xvid: not enough space in plane %d, need at least %d, got %d", j, l, len(v))
 		}
 		cPlanes[j] = unsafe.Pointer(&i.Planes[j][0])
-		s := width * i.Colorspace.BitsPerPixelPlanes[j] / 8
-		if i.Strides[j] == 0 {
-			cStrides[j] = C.int(s)
-		} else if i.Strides[j] < s {
-			return nil, fmt.Errorf("xvid: insufficient stride in plane %d (strides is the total length of row, not just the offset), need at least %d, got %d", j, s, i.Strides[j])
-		} else {
-			cStrides[j] = C.int(i.Strides[j])
+		if j < i.Colorspace.Strides {
+			s := width * i.Colorspace.BitsPerPixelPlanes[j] / 8
+			if i.Strides[j] == 0 {
+				cStrides[j] = C.int(s)
+			} else if i.Strides[j] < s {
+				return nil, fmt.Errorf("xvid: insufficient stride in plane %d (strides is the total length of row, not just the offset), need at least %d, got %d", j, s, i.Strides[j])
+			} else {
+				cStrides[j] = C.int(i.Strides[j])
+			}
 		}
 	}
 	return &C.xvid_image_t{
@@ -514,22 +599,29 @@ func (i *Image) nativeOutput(width int, height int) (*C.xvid_image_t, error) {
 		return nil, fmt.Errorf("xvid: unexpected number of planes for image, expected %d, got %d", i.Colorspace.Planes, len(i.Planes))
 	}
 	if i.Strides == nil {
-		i.Strides = make([]int, i.Colorspace.Planes)
-	} else if len(i.Strides) != i.Colorspace.Planes {
-		return nil, fmt.Errorf("xvid: unexpected number of strides for image, expected %d, got %d", i.Colorspace.Planes, len(i.Planes))
+		i.Strides = make([]int, i.Colorspace.Strides)
+	} else if len(i.Strides) != i.Colorspace.Strides {
+		return nil, fmt.Errorf("xvid: unexpected number of strides for image, expected %d, got %d", i.Colorspace.Strides, len(i.Strides))
 	}
 	var cPlanes [4]unsafe.Pointer
 	var cStrides [4]C.int
 	if width > 0 && height > 0 && i.Colorspace.value != ColorSpaceInternal.value {
 		for j, v := range i.Planes {
-			s := width * i.Colorspace.BitsPerPixelPlanes[j] / 8
-			if i.Strides[j] == 0 {
-				cStrides[j] = C.int(s)
-				i.Strides[j] = s // TODO this replaces the auto-0 with a non-0 value, is it ok?
-			} else if i.Strides[j] < s {
-				return nil, fmt.Errorf("xvid: insufficient stride in plane %d (strides is the total length of row, not just the offset), need at least %d, got %d", j, s, i.Strides[j])
+			var s int
+			if j >= i.Colorspace.Strides {
+				// will only happen on the 3rd plane of a format with 2 planes
+				// use the 2nd plane stride
+				s = i.Strides[j-1]
 			} else {
-				cStrides[j] = C.int(i.Strides[j])
+				s = width * i.Colorspace.BitsPerPixelPlanes[j] / 8
+				if i.Strides[j] == 0 {
+					cStrides[j] = C.int(s)
+					i.Strides[j] = s // TODO this replaces the auto-0 with a non-0 value, is it ok?
+				} else if i.Strides[j] < s {
+					return nil, fmt.Errorf("xvid: insufficient stride in plane %d (strides is the total length of row, not just the offset), need at least %d, got %d", j, s, i.Strides[j])
+				} else {
+					cStrides[j] = C.int(i.Strides[j])
+				}
 			}
 			l := s * height
 			if v == nil {
@@ -612,10 +704,19 @@ func InitWithFlags(cpuFlags CPUFlag, debugFlags DebugFlag) error {
 	return nil
 }
 
-// Converts converts an Image from a color space to another. Init (or InitWithFlags) must be called once before calling this function.
+// Converts converts an Image from a color space (has to be ColorSpacePlanar or ColorSpaceYV12) to any other but ColorSpaceInternal.
+// Init (or InitWithFlags) must be called once before calling this function.
 // An error can be returned because of invalid input or output images, or due to an internal Xvid error.
-func Convert(input Image, output Image, width int, height int, interlacing bool) error {
-	cInput, err := input.nativeOutput(width, height)
+func Convert(input Image, output *Image, width int, height int, interlacing bool) error {
+	if input.Colorspace.value == ColorSpacePlanar.value {
+		input.Colorspace = ColorSpaceInternal
+	} else if input.Colorspace.value != ColorSpaceYV12.value {
+		return fmt.Errorf("xvid: invalid color space for conversion input, must be ColorSpacePlanar, ColorSpaceI420, or ColorSpaceYV12")
+	}
+	if output.Colorspace.value == ColorSpaceInternal.value {
+		return fmt.Errorf("xvid: invalid color space for conversion output, must not be ColorSpaceInternal")
+	}
+	cInput, err := input.nativeInput(width, height)
 	if err != nil {
 		return err
 	}
@@ -634,6 +735,7 @@ func Convert(input Image, output Image, width int, height int, interlacing bool)
 	if code := C.xvid_global(nil, C.XVID_GBL_CONVERT, unsafe.Pointer(&cConvertInfo), nil); code != 0 {
 		return xvidErr(code)
 	}
+	output.fixAlpha(width, height)
 	return nil
 }
 
@@ -880,23 +982,25 @@ func (d *Decoder) decodeBuffer(frame DecoderFrame, input []byte) (int, DecoderSt
 	if code < 0 {
 		return 0, DecoderStats{FrameType: frameTypeNothing}, xvidErr(code)
 	}
-	if frame.Output.Colorspace.value == ColorSpaceInternal.value {
-		j := 0
-		for j < ColorSpaceInternal.Planes {
-			l := d.Width * d.Height * frame.Output.Colorspace.BitsPerPixelPlanes[j] / 8
-			sh := reflect.SliceHeader{
-				Data: uintptr(cDecoreFrame.output.plane[j]),
-				Len:  l,
-				Cap:  l,
-			}
-			frame.Output.Planes[j] = *(*[]byte)(unsafe.Pointer(&sh))
-			frame.Output.Strides[j] = int(cDecoreFrame.output.stride[j])
-		}
-	}
 	stats := DecoderStats{
 		FrameType: FrameType(cDecodeStats._type),
 	}
 	if stats.FrameType > 0 {
+		if frame.Output.Colorspace.value == ColorSpaceInternal.value {
+			j := 0
+			for j < ColorSpaceInternal.Planes {
+				l := d.Width * d.Height * frame.Output.Colorspace.BitsPerPixelPlanes[j] / 8
+				sh := reflect.SliceHeader{
+					Data: uintptr(cDecoreFrame.output.plane[j]),
+					Len:  l,
+					Cap:  l,
+				}
+				frame.Output.Planes[j] = *(*[]byte)(unsafe.Pointer(&sh))
+				frame.Output.Strides[j] = int(cDecoreFrame.output.stride[j])
+			}
+		}
+		frame.Output.fixAlpha(d.Width, d.Height)
+
 		cVopData := C.vop_data(&cDecodeStats)
 		var quantizers []int32
 		if cVopData.qscale != nil {
@@ -1845,6 +1949,9 @@ func NewEncoder(init *EncoderInit) (*Encoder, error) {
 func (e *Encoder) Encode(frame EncoderFrame) (int, *EncoderStats, error) {
 	if e.closed {
 		return 0, nil, fmt.Errorf("xvid: encoder is closed")
+	}
+	if frame.Input.Colorspace.value == ColorSpaceInternal.value {
+		return 0, nil, fmt.Errorf("xvid: unexpected colorspace ColorSpaceInternal, use only for output")
 	}
 	var quantIntraMatrix *C.uchar = nil
 	if frame.QuantizerIntraMatrix != nil {
